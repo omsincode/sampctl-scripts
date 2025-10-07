@@ -1,0 +1,37 @@
+{
+	"user": "omsincode",
+	"repo": "sampctl-scripts",
+	"tag": "0.0.1",
+	"entry": "main.pwn",
+	"output": "gamemodes/main.amx",
+	"dependencies": [
+		"pawn-lang/samp-stdlib",
+		"pBlueG/SA-MP-MySQL",
+		"Y-Less/sscanf",
+		"Southclaws/zcmd"
+	],
+	"builds": [
+		{
+			"name": "main",
+			"includes": [
+				"scripts"
+			]
+		}
+	],
+	"runtime": {
+		"mode": "main",
+		"echo": "loading...",
+		"rcon_password": "password",
+		"port": 7777,
+		"hostname": "Star Town Roleplay",
+		"maxplayers": 50,
+		"language": "Thai",
+		"mapname": "San Andreas",
+		"weburl": "www.startown.com",
+		"plugins": [
+			"mysql",
+			"sscanf"
+		]
+	},
+	"local": true
+}
