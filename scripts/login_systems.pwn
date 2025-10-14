@@ -92,6 +92,7 @@ stock ResetPlayerData(playerid) { // รีเซ็ตข้อมูลผู้เล่นเมื่อออกหรือเริ่มใหม่
     PlayerFloatData[playerid][LastPosY] = FLOAT:0.0;
     PlayerFloatData[playerid][LastPosZ] = FLOAT:0.0;
     PlayerFloatData[playerid][LastAngle] = FLOAT:0.0;
+    
     return 1;
 }
 

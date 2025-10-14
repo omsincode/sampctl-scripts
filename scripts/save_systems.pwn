@@ -100,6 +100,10 @@ stock InternalDoPlayerSave(playerid, bool:isManualSave = false) {
     );
 
     mysql_tquery(dbHandle, query, "OnPlayerSave", "ii", playerid, isManualSave);
+    
+    // บันทึก Inventory ด้วย
+    SavePlayerInventory(playerid);
+    
     return 1;
 }
 

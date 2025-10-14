@@ -11,6 +11,17 @@
 
 ? NO sscanf2 - ใช้ SplitParams() ที่สร้างเอง
 
+Include Order (main.pwn):
+    1. scripts/database.pwn
+    2. scripts/player_data.pwn
+    3. scripts/login_systems.pwn
+    4. scripts/save_systems.pwn
+    5. scripts/loads_systems.pwn
+    6. scripts/inventory_systems.pwn
+    7. scripts/ability_items.pwn       // ต้อง include หลัง inventory
+    8. scripts/ondialogresponse.pwn
+    9. scripts/commands/admin_commands.pwn
+
 Include Guard (ทุกไฟล์):
     #if defined _filename_included
         #endinput
@@ -52,7 +63,17 @@ enum E_PLAYER_BOOL_DATA {
 new PlayerBoolData[MAX_PLAYERS][E_PLAYER_BOOL_DATA];
 
 enum E_ITEM_DATA {
-    ItemDBID, ItemName[MAX_ITEM_NAME], ItemDescription[MAX_ITEM_DESC], Float:ItemWeight
+    ItemDBID, ItemName[MAX_ITEM_NAME], ItemDescription[MAX_ITEM_DESC], Float:ItemWeight, E_ITEM_TYPE:ItemType
+};
+
+enum E_ITEM_TYPE {
+    ITEM_TYPE_NONE = 0,     // ไอเท็มทั่วไป
+    ITEM_TYPE_FOOD,         // อาหาร (+10 HP)
+    ITEM_TYPE_DRINK,        // เครื่องดื่ม (+15 HP)
+    ITEM_TYPE_MEDICAL,      // ยา (+30 HP)
+    ITEM_TYPE_ARMOR,        // เกราะ (+100 Armour)
+    ITEM_TYPE_WEAPON,       // อาวุธ (ให้อาวุธ)
+    ITEM_TYPE_TOOL          // เครื่องมือ (ซ่อมรถ)
 };
 
 enum E_PLAYER_INVENTORY {
@@ -93,6 +114,32 @@ stock LoadPlayerData(playerid)
 stock LoadAllItemsFromDB()
     // โหลดไอเท็มทั้งหมดเข้า ItemData[]
 
+stock DetermineItemType(const itemName[])
+    // กำหนดประเภท ability ของไอเท็มจากชื่อ (ability_items.pwn)
+    
+stock UseItem(playerid, inventorySlot)
+    // ใช้งานไอเท็มตาม ability (ability_items.pwn)
+    
+stock GetItemAbilityText(E_ITEM_TYPE:itemType, dest[], maxlen)
+    // ดึงข้อความอธิบาย ability (ability_items.pwn)
+
+stock UseItem(playerid, inventorySlot)
+    // ใช้งานไอเท็มตาม ability ของมัน
+    // Returns: 1 = สำเร็จ, 0 = ล้มเหลว
+
+stock DetermineItemType(const itemName[])
+    // กำหนดประเภทไอเท็มจากชื่อ
+    // Returns: E_ITEM_TYPE
+
+stock AddSpawnedVehicle(vehicleid)
+    // เพิ่มรถเข้าระบบติดตาม (รถที่เสกจากคำสั่ง)
+
+stock RemoveSpawnedVehicle(vehicleid)
+    // ลบรถออกจากระบบติดตาม
+
+stock IsSpawnedVehicle(vehicleid)
+    // เช็คว่ารถเป็นรถที่เสกหรือไม่
+
 6. COMMAND SYSTEM (ZCMD)
 ??????????????????????????????????????????????????????????????????????????????
 CMD:vehicle(playerid, params[])
@@ -103,9 +150,15 @@ CMD:repair(playerid, params[])
 CMD:fix(playerid, params[])
 CMD:adminhelp(playerid, params[])
 CMD:giveitem(playerid, params[])
+CMD:createitem(playerid, params[])              // Create new item (Admin Lv5+)
 CMD:inventory(playerid, params[])               // Show inventory dialog
 CMD:inv(playerid, params[])                     // Short command
 CMD:i(playerid, params[])                       // Shortest command
+CMD:reloaditems(playerid, params[])             // Reload items from DB
+CMD:itemlist(playerid, params[])                // Show all items list
+CMD:clearspawnedvehicles(playerid, params[])    // Clear spawned vehicles (Admin Lv2+)
+CMD:clearveh(playerid, params[])                // Short command
+CMD:cveh(playerid, params[])                    // Shortest command
 
 Hotkey:
     กดปุ่ม Y หรือ ~ ? เปิด Inventory Dialog (ต้องล็อกอินก่อน)
@@ -152,7 +205,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
     ? DIALOG_LOGIN / DIALOG_REGISTER
     ? DIALOG_ADMIN_HELP
     ? DIALOG_INVENTORY (แสดงรายการไอเท็ม)
-    ? DIALOG_ITEM_INFO (แสดงรายละเอียดไอเท็ม)
+    ? DIALOG_ITEM_INFO (แสดงรายละเอียด + ปุ่ม "ใช้" และ "ปิด")
 
 9. NAMING CONVENTION
 ??????????????????????????????????????????????????????????????????????????????

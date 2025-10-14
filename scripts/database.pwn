@@ -28,8 +28,14 @@ stock ConnectToDatabase() {
         printf("[MySQL] cannot connect (err %d)", mysql_errno(dbHandle));
         return 0;
     }
+    
+    // ตั้งค่า Character Set เป็น UTF-8 เพื่อรองรับภาษาไทย
+    mysql_query(dbHandle, "SET NAMES 'utf8mb4'");
+    mysql_query(dbHandle, "SET CHARACTER SET utf8mb4");
+    mysql_query(dbHandle, "SET character_set_connection=utf8mb4");
+    
     g_DBReady = true;
-    print("[MySQL] successfully connected to database");
+    print("[MySQL] successfully connected to database (UTF-8 encoding)");
     return 1;
 }
 

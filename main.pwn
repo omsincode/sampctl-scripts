@@ -9,7 +9,8 @@
 #include "scripts/login_systems.pwn"
 #include "scripts/save_systems.pwn"
 #include "scripts/loads_systems.pwn"
-#include "scripts/inventory_systems.pwn"
+#include "scripts/items.pwn"                 // Static Item System (enum-based)
+#include "scripts/inventory_systems.pwn"     // Player Inventory System
 #include "scripts/ondialogresponse.pwn"
 #include "scripts/commands/admin_commands.pwn"
 
@@ -45,8 +46,8 @@ public OnGameModeInit() {
     printf("[Debug] Run GameMode...");
     ConnectToDatabase();
 
-    // โหลดข้อมูลไอเท็มทั้งหมดจาก database
-    LoadAllItemsFromDB();
+    // เริ่มต้นระบบไอเท็ม (Static Item System)
+    InitializeItems();
 
     if (g_AutoSaveTimer != -1) KillTimer(g_AutoSaveTimer);
     g_AutoSaveTimer = SetTimer("AutoSaveTick", AUTOSAVE_INTERVAL_MS, true);
@@ -127,9 +128,15 @@ public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ) {
 // OnDialogResponse moved to systems/dialog_systems.pwn
 
 // ------------------------------ Exit ------------------------------------
+public OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
+    // จัดการ Inventory Hotkey
+    HandleInventoryHotkey(playerid, newkeys, oldkeys);
+    return 1;
+}
 
 public OnPlayerDisconnect(playerid, reason) {
     ForceSavePlayerData(playerid); // บังคับเซฟครั้งสุดท้ายก่อนออก (ก่อนล้างข้อมูล)
+    ClearPlayerInventory(playerid); // ล้าง inventory
     ResetPlayerData(playerid);
     return 1;
 }
