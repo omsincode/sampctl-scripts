@@ -7,7 +7,6 @@
 	"dependencies": [
 		"pawn-lang/samp-stdlib",
 		"pBlueG/SA-MP-MySQL",
-		"Y-Less/sscanf",
 		"Southclaws/zcmd"
 	],
 	"builds": [
@@ -29,8 +28,7 @@
 		"mapname": "San Andreas",
 		"weburl": "www.startown.com",
 		"plugins": [
-			"mysql",
-			"sscanf"
+			"mysql"
 		]
 	},
 	"local": true

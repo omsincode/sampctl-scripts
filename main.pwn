@@ -5,9 +5,12 @@
 
 // ------------------------------ Includes ------------------------------------
 #include "scripts/database.pwn"
+#include "scripts/player_data.pwn"
 #include "scripts/login_systems.pwn"
 #include "scripts/save_systems.pwn"
-#include "scripts/dialog_systems.pwn"
+#include "scripts/loads_systems.pwn"
+#include "scripts/inventory_systems.pwn"
+#include "scripts/ondialogresponse.pwn"
 #include "scripts/commands/admin_commands.pwn"
 
 // กำหนดค่าเซิร์ฟเวอร์
@@ -20,6 +23,10 @@
 // -------------------------- Autosave Settings ------------------------------
 #define AUTOSAVE_INTERVAL_MS   (300000) // 5 นาทีต่อรอบ
 new g_AutoSaveTimer = -1;
+
+// -------------------------- Key Press Macro ---------------------------------
+#define PRESSED(%0) \
+    (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 
 // -------------------------- forward declarations -----------------------------
 forward AutoSaveTick();
@@ -37,6 +44,9 @@ main() {
 public OnGameModeInit() {
     printf("[Debug] Run GameMode...");
     ConnectToDatabase();
+
+    // โหลดข้อมูลไอเท็มทั้งหมดจาก database
+    LoadAllItemsFromDB();
 
     if (g_AutoSaveTimer != -1) KillTimer(g_AutoSaveTimer);
     g_AutoSaveTimer = SetTimer("AutoSaveTick", AUTOSAVE_INTERVAL_MS, true);
@@ -75,6 +85,21 @@ public OnPlayerSpawn(playerid) {
 }
 
 // ------------------------------ Maps -------------------------------
+
+public OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
+    // กด KEY_YES (Y หรือ ~) เพื่อเปิด Inventory
+    if (PRESSED(KEY_YES)) {
+        if (IsPlayerLoggedIn(playerid)) {
+            ShowPlayerInventory(playerid);
+        } else {
+            SendClientMessage(playerid, 0xFF6347AA, "คุณต้องล็อกอินก่อนใช้งาน Inventory!");
+        }
+        return 1;
+    }
+    
+    return 1;
+}
+
 public AutoSaveTick() {
     // วนเซฟผู้เล่นที่ล็อกอินแบบ throttle-friendly (ใช้ SavePlayerData)
     new count = 0;

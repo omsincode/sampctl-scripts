@@ -116,6 +116,9 @@ public OnPlayerDataLoad(playerid) {
     ApplyLoadedPlayerData(playerid);
     PlayerBoolData[playerid][DataReady] = true; // ข้อมูลพร้อมแล้ว
 
+    // โหลด inventory ของผู้เล่น
+    LoadPlayerInventory(playerid);
+
     printf("[Load] id=%d pos=(%.2f, %.2f, %.2f) ang=%.2f hp=%d ar=%d money=%d lvl=%d xp=%d",
         PlayerIntData[playerid][PlayerID],
         Float:PlayerFloatData[playerid][LastPosX],

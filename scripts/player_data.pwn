@@ -54,3 +54,4 @@ stock ResetAllPlayerData(playerid) {
     PlayerIntData[playerid][LoginAttempts] = 0;
     return 1;
 }
+

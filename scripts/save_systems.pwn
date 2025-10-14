@@ -5,8 +5,8 @@
 #define _save_systems_included
 
 // ------------------------------ Includes ------------------------------------
-#include "scripts/database.pwn"      // include ภายในโฟลเดอร์เดียวกัน
-#include "scripts/player_data.pwn"
+#include "database.pwn"      // include ภายในโฟลเดอร์เดียวกัน
+#include "player_data.pwn"
 
 // ------------------------------ Config -------------------------------------
 #if !defined MIN_SAVE_INTERVAL

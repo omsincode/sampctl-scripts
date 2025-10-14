@@ -5,10 +5,10 @@
 #define _login_system_included
 
 // ------------------------------ Includes ------------------------------------
-#include "scripts/database.pwn"
-#include "scripts/player_data.pwn" // เพิ่มเพื่อใช้ PlayerBoolData / PlayerIntData
-#include "scripts/loads_systems.pwn"
-#include "scripts/save_systems.pwn"
+#include "database.pwn"
+#include "player_data.pwn" // เพิ่มเพื่อใช้ PlayerBoolData / PlayerIntData
+#include "loads_systems.pwn"
+#include "save_systems.pwn"
 
 // ------------------------------ Defines -------------------------------------
 #define DIALOG_LOGIN     1

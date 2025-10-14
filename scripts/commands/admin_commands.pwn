@@ -241,6 +241,72 @@ CMD:adminhelp(playerid, params[]) {
     return 1;
 }
 
+// คำสั่งให้ไอเท็มแก่ผู้เล่น /giveitem
+CMD:giveitem(playerid, params[]) {
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 3) {
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณต้องเป็นแอดมินเลเวล 3 ขึ้นไป!");
+        return 1;
+    }
+    
+    // ตรวจสอบพารามิเตอร์
+    if(strlen(params) == 0) {
+        SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /giveitem [PlayerID] [ItemIndex] [จำนวน]");
+        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /giveitem 0 1 5");
+        return 1;
+    }
+    
+    new args[3][32];
+    new argCount = SplitParams(params, args);
+    
+    if(argCount < 3) {
+        SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /giveitem [PlayerID] [ItemIndex] [จำนวน]");
+        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /giveitem 0 1 5");
+        return 1;
+    }
+    
+    new targetid = strval(args[0]);
+    new itemIndex = strval(args[1]);
+    new quantity = strval(args[2]);
+    
+    if(!IsPlayerConnected(targetid)) {
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: ผู้เล่นไม่ออนไลน์!");
+        return 1;
+    }
+    
+    if(itemIndex < 0 || itemIndex >= g_TotalItems) {
+        new msg[128];
+        format(msg, sizeof(msg), "ข้อผิดพลาด: ItemIndex ต้องอยู่ระหว่าง 0-%d", g_TotalItems - 1);
+        SendClientMessage(playerid, COLOR_RED, msg);
+        return 1;
+    }
+    
+    if(quantity < 1 || quantity > 1000) {
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: จำนวนต้องอยู่ระหว่าง 1-1000!");
+        return 1;
+    }
+    
+    // เพิ่มไอเท็มให้ผู้เล่น
+    if(AddItemToPlayer(targetid, itemIndex, quantity)) {
+        new itemName[MAX_ITEM_NAME], targetName[MAX_PLAYER_NAME], adminName[MAX_PLAYER_NAME];
+        GetItemNameByIndex(itemIndex, itemName);
+        GetPlayerName(targetid, targetName, sizeof(targetName));
+        GetPlayerName(playerid, adminName, sizeof(adminName));
+        
+        new msg[256];
+        format(msg, sizeof(msg), "[Admin] คุณได้ให้ไอเท็ม '%s' จำนวน %d ชิ้นแก่ %s", 
+            itemName, quantity, targetName);
+        SendClientMessage(playerid, COLOR_GREEN, msg);
+        
+        format(msg, sizeof(msg), "[Admin] คุณได้รับไอเท็ม '%s' จำนวน %d ชิ้นจาก Admin %s", 
+            itemName, quantity, adminName);
+        SendClientMessage(targetid, COLOR_GREEN, msg);
+    } else {
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: ไม่สามารถเพิ่มไอเท็มได้ (Inventory อาจเต็ม)");
+    }
+    
+    return 1;
+}
+
 // ------------------------------ Dialog Admin Help ---------------------------------
 // แสดง Dialog ช่วยเหลือหลักสำหรับแอดมิน
 stock ShowAdminHelpDialog(playerid) {
@@ -255,6 +321,8 @@ stock ShowAdminHelpDialog(playerid) {
     strcat(list_content, "{00FF00}/vehicle [ID] [สี1] [สี2]{FFFFFF} - เสกรถ\n");
     strcat(list_content, "{00FF00}/deletevehicle{FFFFFF} - ลบรถ\n");
     strcat(list_content, "{00FF00}/repair{FFFFFF} - ซ่อมรถ\n");
+    strcat(list_content, "{00FF00}/giveitem [ID] [ItemIndex] [จำนวน]{FFFFFF} - ให้ไอเท็ม\n");
+    strcat(list_content, "{00FF00}/reloaditems{FFFFFF} - โหลดไอเท็มใหม่\n");
     strcat(list_content, "{00FF00}/adminhelp{FFFFFF} - แสดงความช่วยเหลือ");
 
     ShowPlayerDialog(playerid, DIALOG_ADMIN_HELP, DIALOG_STYLE_LIST,
@@ -281,6 +349,16 @@ stock ShowAdminCommandUsage(playerid, index) {
         case 3: { // /adminhelp
             SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /adminhelp  |  ทางลัด: /ahelp, /admin, /a");
             SendClientMessage(playerid, COLOR_WHITE,  "การทำงาน: เปิดหน้าความช่วยเหลือแอดมิน");
+        }
+        case 4: { // /giveitem
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /giveitem [PlayerID] [ItemIndex] [จำนวน]");
+            SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /giveitem 0 1 5  (ให้ไอเท็ม index 1 จำนวน 5 ชิ้นแก่ผู้เล่น ID 0)");
+            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 3+");
+        }
+        case 5: { // /reloaditems
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /reloaditems");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: โหลดข้อมูลไอเท็มใหม่จากฐานข้อมูล");
+            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 5+");
         }
         default: {
             SendClientMessage(playerid, COLOR_RED, "ไม่พบข้อมูลวิธีใช้ของคำสั่งที่เลือก");
