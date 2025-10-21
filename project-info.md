@@ -17,8 +17,8 @@ Include Order (main.pwn):
     3. scripts/login_systems.pwn
     4. scripts/save_systems.pwn
     5. scripts/loads_systems.pwn
-    6. scripts/inventory_systems.pwn
-    7. scripts/ability_items.pwn       // ต้อง include หลัง inventory
+    6. scripts/items.pwn               // Static Item System (รวม abilities)
+    7. scripts/inventory_systems.pwn
     8. scripts/ondialogresponse.pwn
     9. scripts/commands/admin_commands.pwn
 
@@ -115,16 +115,20 @@ stock LoadAllItemsFromDB()
     // โหลดไอเท็มทั้งหมดเข้า ItemData[]
 
 stock DetermineItemType(const itemName[])
-    // กำหนดประเภท ability ของไอเท็มจากชื่อ (ability_items.pwn)
-    
-stock UseItem(playerid, inventorySlot)
-    // ใช้งานไอเท็มตาม ability (ability_items.pwn)
-    
-stock GetItemAbilityText(E_ITEM_TYPE:itemType, dest[], maxlen)
-    // ดึงข้อความอธิบาย ability (ability_items.pwn)
+    // กำหนดประเภท ability ของไอเท็มจากชื่อ (inventory_systems.pwn)
 
-stock UseItem(playerid, inventorySlot)
-    // ใช้งานไอเท็มตาม ability ของมัน
+stock InitializeItems()
+    // เริ่มต้นฐานข้อมูลไอเท็ม Static (items.pwn)
+    
+stock GetItemAbilityText(itemid, dest[], maxlen)
+    // ดึงข้อความอธิบาย ability จาก item_id (items.pwn)
+    
+stock UseItem(playerid, itemid, slot = -1)
+    // ใช้งานไอเท็มตาม item_id (ไม่ลบออกจาก inventory)
+    // Returns: 1 = สำเร็จ, 0 = ล้มเหลว
+    
+stock UseItemBySlot(playerid, inventorySlot)
+    // ใช้งานไอเท็มจาก inventory slot (ลบออกอัตโนมัติ)
     // Returns: 1 = สำเร็จ, 0 = ล้มเหลว
 
 stock DetermineItemType(const itemName[])

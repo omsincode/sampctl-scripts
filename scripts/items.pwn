@@ -8,6 +8,26 @@
 // ระบบไอเท็มแบบ Static (กำหนด ID ไว้ใน enum)
 // ไม่ต้องโหลดจาก database แบบ dynamic
 // เซฟและโหลดข้อมูลผ่าน item_id ที่กำหนดไว้
+//
+// รวมระบบ Item Abilities:
+//   - ITEM_TYPE_FOOD      : ขนมปัง (+10 HP)
+//   - ITEM_TYPE_DRINK     : น้ำดื่ม (+15 HP)
+//   - ITEM_TYPE_MEDICAL   : ยาพอก (+30 HP)
+//   - ITEM_TYPE_ARMOR     : เสื้อกันกระสุน (+100 Armour)
+//   - ITEM_TYPE_WEAPON    : ปืน Desert Eagle, ไม้เบสบอล
+//   - ITEM_TYPE_TOOL      : ชุดเครื่องมือช่าง (ซ่อมรถ)
+//
+// Functions:
+//   - InitializeItems()           : เริ่มต้นฐานข้อมูลไอเท็ม
+//   - GetItemName()               : ดึงชื่อไอเท็ม
+//   - GetItemDescription()        : ดึงคำอธิบายไอเท็ม
+//   - GetItemWeight()             : ดึงน้ำหนักไอเท็ม
+//   - GetItemType()               : ดึงประเภทไอเท็ม
+//   - GetItemValue()              : ดึงค่าพิเศษของไอเท็ม
+//   - IsValidItemID()             : เช็คไอเท็ม ID ที่ถูกต้อง
+//   - GetItemAbilityText()        : ดึงข้อความอธิบาย Ability
+//   - UseItem()                   : ใช้งานไอเท็มตาม ability
+//   - UseItemBySlot()             : ใช้งานไอเท็มจาก inventory slot
 // ===============================================================================
 
 // ------------------------------ Item Definitions ----------------------------
@@ -215,8 +235,9 @@ stock GetItemAbilityText(itemid, dest[], maxlen = 128) {
 }
 
 // ------------------------------ Item Usage ----------------------------------
-// ใช้งานไอเท็ม (เรียกจาก inventory_systems.pwn)
-// รองรับทั้ง item_id และ slot-based system
+// ใช้งานไอเท็มโดยตรงจาก item_id (ไม่ลบไอเท็มออกจาก inventory)
+// เรียกใช้จาก inventory_systems.pwn หรือระบบอื่นๆ
+// Return: 1 = สำเร็จ, 0 = ไม่สำเร็จ
 stock UseItem(playerid, itemid, slot = -1) {
     if (!IsPlayerConnected(playerid)) return 0;
     if (!IsValidItemID(itemid)) return 0;
@@ -281,5 +302,116 @@ stock UseItem(playerid, itemid, slot = -1) {
             return 0;
         }
     }
+    return 0;
+}
+
+// ------------------------------ Inventory Slot Usage ------------------------
+// ใช้งานไอเท็มจาก inventory slot (รองรับ dynamic item system)
+// ฟังก์ชันนี้จะเรียก RemoveItemFromPlayer() หลังใช้งานสำเร็จ
+// ต้อง #include ไฟล์นี้หลัง inventory_systems.pwn
+// Return: 1 = สำเร็จ, 0 = ไม่สำเร็จ
+stock UseItemBySlot(playerid, inventorySlot) {
+    if (!IsPlayerConnected(playerid)) return 0;
+    
+    // ตรวจสอบว่ามีฟังก์ชัน inventory_systems อยู่หรือไม่
+    #if !defined PlayerInventoryCount
+        printf("[Item System ERROR] inventory_systems.pwn not included!");
+        return 0;
+    #endif
+    
+    if (inventorySlot < 0 || inventorySlot >= PlayerInventoryCount[playerid]) return 0;
+    
+    new itemIdx = PlayerInventory[playerid][inventorySlot][InvItemID];
+    if (itemIdx < 0 || itemIdx >= g_TotalItems) return 0;
+    
+    new itemName[MAX_ITEM_NAME];
+    GetItemNameByIndex(itemIdx, itemName);
+    new msg[128];
+    
+    // ตรวจสอบประเภทไอเท็มและใช้งานตาม ability
+    switch (ItemData[itemIdx][ItemType]) {
+        case ITEM_TYPE_FOOD: { // อาหาร - เพิ่ม Health +10
+            new Float:health;
+            GetPlayerHealth(playerid, health);
+            if (health >= 100.0) {
+                SendClientMessage(playerid, 0xFF0000FF, "คุณมีเลือดเต็มแล้ว ไม่สามารถใช้ไอเท็มนี้ได้!");
+                return 0;
+            }
+            SetPlayerHealth(playerid, health + 10.0);
+            format(msg, sizeof(msg), "{00FF00}คุณได้กินขนมปัง +10 HP (%.1f HP)", health + 10.0);
+            SendClientMessage(playerid, -1, msg);
+            RemoveItemFromPlayer(playerid, inventorySlot, 1);
+            return 1;
+        }
+        case ITEM_TYPE_DRINK: { // เครื่องดื่ม - เพิ่ม Health +15
+            new Float:health;
+            GetPlayerHealth(playerid, health);
+            if (health >= 100.0) {
+                SendClientMessage(playerid, 0xFF0000FF, "คุณมีเลือดเต็มแล้ว ไม่สามารถใช้ไอเท็มนี้ได้!");
+                return 0;
+            }
+            SetPlayerHealth(playerid, health + 15.0);
+            format(msg, sizeof(msg), "{00FF00}คุณได้ดื่มน้ำ +15 HP (%.1f HP)", health + 15.0);
+            SendClientMessage(playerid, -1, msg);
+            RemoveItemFromPlayer(playerid, inventorySlot, 1);
+            return 1;
+        }
+        case ITEM_TYPE_MEDICAL: { // ยา - เพิ่ม Health +30
+            new Float:health;
+            GetPlayerHealth(playerid, health);
+            if (health >= 100.0) {
+                SendClientMessage(playerid, 0xFF0000FF, "คุณมีเลือดเต็มแล้ว ไม่สามารถใช้ไอเท็มนี้ได้!");
+                return 0;
+            }
+            SetPlayerHealth(playerid, health + 30.0);
+            format(msg, sizeof(msg), "{00FF00}คุณได้ใช้ยาพอก +30 HP (%.1f HP)", health + 30.0);
+            SendClientMessage(playerid, -1, msg);
+            RemoveItemFromPlayer(playerid, inventorySlot, 1);
+            return 1;
+        }
+        case ITEM_TYPE_ARMOR: { // เกราะ - เพิ่ม Armour 100%
+            new Float:armour;
+            GetPlayerArmour(playerid, armour);
+            if (armour >= 100.0) {
+                SendClientMessage(playerid, 0xFF0000FF, "คุณมีเกราะเต็มแล้ว ไม่สามารถใช้ไอเท็มนี้ได้!");
+                return 0;
+            }
+            SetPlayerArmour(playerid, 100.0);
+            SendClientMessage(playerid, -1, "{00FF00}คุณได้สวมเสื้อกันกระสุน +100 Armour");
+            RemoveItemFromPlayer(playerid, inventorySlot, 1);
+            return 1;
+        }
+        case ITEM_TYPE_WEAPON: { // อาวุธ
+            if (strfind(itemName, "Desert Eagle", true) != -1) {
+                GivePlayerWeapon(playerid, 24, 50); // Desert Eagle + 50 กระสุน
+                SendClientMessage(playerid, -1, "{00FF00}คุณได้รับปืน Desert Eagle พร้อมกระสุน 50 นัด");
+                RemoveItemFromPlayer(playerid, inventorySlot, 1);
+                return 1;
+            }
+            else if (strfind(itemName, "ไม้เบสบอล", true) != -1) {
+                GivePlayerWeapon(playerid, 5, 1); // Baseball Bat
+                SendClientMessage(playerid, -1, "{00FF00}คุณได้รับไม้เบสบอล");
+                RemoveItemFromPlayer(playerid, inventorySlot, 1);
+                return 1;
+            }
+        }
+        case ITEM_TYPE_TOOL: { // เครื่องมือ - ซ่อมรถ
+            if (!IsPlayerInAnyVehicle(playerid)) {
+                SendClientMessage(playerid, 0xFF0000FF, "คุณต้องอยู่ในรถเพื่อใช้เครื่องมือนี้!");
+                return 0;
+            }
+            new vehicleid = GetPlayerVehicleID(playerid);
+            RepairVehicle(vehicleid);
+            SendClientMessage(playerid, -1, "{00FF00}คุณได้ใช้เครื่องมือซ่อมรถ รถได้รับการซ่อมแซมแล้ว!");
+            RemoveItemFromPlayer(playerid, inventorySlot, 1);
+            return 1;
+        }
+        default: { // ไอเท็มทั่วไป - ไม่มี ability
+            format(msg, sizeof(msg), "{FFFF00}ไอเท็ม '%s' ไม่สามารถใช้งานได้", itemName);
+            SendClientMessage(playerid, -1, msg);
+            return 0;
+        }
+    }
+    
     return 0;
 }

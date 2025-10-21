@@ -9,24 +9,7 @@
 		"pBlueG/SA-MP-MySQL",
 		"Southclaws/zcmd"
 	],
-	"builds": [
-		{
-			"name": "main",
-			"includes": [
-				"scripts"
-			]
-		}
-	],
 	"runtime": {
-		"mode": "main",
-		"echo": "loading...",
-		"rcon_password": "password",
-		"port": 7777,
-		"hostname": "Star Town Roleplay",
-		"maxplayers": 50,
-		"language": "Thai",
-		"mapname": "San Andreas",
-		"weburl": "www.startown.com",
 		"plugins": [
 			"mysql"
 		]
