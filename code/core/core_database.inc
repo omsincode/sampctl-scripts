@@ -9,7 +9,7 @@
 
 // ------------------------------ Globals -------------------------------------
 new MySQL:mysql_handle = MYSQL_INVALID_HANDLE;
-static bool:g_DBReady = false; // ป้องกันเชื่อมต่อซ้ำ
+static bool:mysql_ready = false; // ป้องกันเชื่อมต่อซ้ำ
 
 // ------------------------------ Defines --------------------------------------
 #define MYSQL_HOST      "localhost"
@@ -20,7 +20,7 @@ static bool:g_DBReady = false; // ป้องกันเชื่อมต่อซ้ำ
 // ------------------------------ Stocks --------------------------------------
 stock connect_to_database()
 {
-    if (g_DBReady && mysql_handle != MYSQL_INVALID_HANDLE)
+    if (mysql_ready && mysql_handle != MYSQL_INVALID_HANDLE)
     {
         print("[MySQL] already connected, skip new connection");
         return 1;
@@ -31,7 +31,7 @@ stock connect_to_database()
         printf("[MySQL] cannot connect (err %d)", mysql_errno(mysql_handle));
         return SendRconCommand("exit"); // ปิด server ถ้าเชื่อมต่อ DB ไม่ได้
     }
-    g_DBReady = true;
+    mysql_ready = true;
     return 1;
 }
 
@@ -42,7 +42,7 @@ stock stop_connect_to_database()
         mysql_close(mysql_handle);
         printf("[MySQL] Close connection");
         mysql_handle = MYSQL_INVALID_HANDLE;
-        g_DBReady = false;
+        mysql_ready = false;
     }
     return 1;
 }

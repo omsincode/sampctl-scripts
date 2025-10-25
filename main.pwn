@@ -4,7 +4,7 @@
 #include <zcmd>
 
 // ------------------------------ Includes ------------------------------------
-#include "code/database/database.pwn"
+#include "code/core/core_database.inc"
 
 // กำหนดค่าเซิร์ฟเวอร์
 #define HOSTNAME        "Star Town" // ชื่อเซิร์ฟเวอร์
