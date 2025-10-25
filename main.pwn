@@ -6,12 +6,11 @@
 // ------------------------------ Includes ------------------------------------
 #include "code/core/core_database.inc"
 
-// กำหนดค่าเซิร์ฟเวอร์
-#define HOSTNAME        "Star Town" // ชื่อเซิร์ฟเวอร์
+// ------------------------------ Server Configuration ------------------------
+#define HOSTNAME        "Star Town"     // Server name
 #define MAPNAME         "THAILAND"
 #define WEBURL          "commingson"
-#define VERSION         "V1.0.0" // เวอร์ชันของเซิร์ฟเวอร์
-// กำหนดค่าเซิร์ฟเวอร์
+#define VERSION         "V1.0.0"        // Server version
 
 // ------------------------------ Main ----------------------------------------
 main()
@@ -20,7 +19,7 @@ main()
 }
 
 
-// ------------------------- Login -----------------------------------
+// ------------------------------ Login ---------------------------------------
 public OnGameModeInit()
 {
     connect_to_database();
@@ -37,7 +36,7 @@ public OnPlayerSpawn(playerid)
     return 1;
 }
 
-// ------------------------------ Maps -------------------------------
+// ------------------------------ Maps ----------------------------------------
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
@@ -46,8 +45,8 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
 // public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
 // {
-//     // ตรวจสอบว่าเป็น admin หรือไม่
-//     if (player_data[playerid][admin] > 0)
+//     // Check if player is admin or higher
+//     if(player_data[playerid][admin] > 0)
 //     {
 //         SetPlayerPosFindZ(playerid, fX, fY, fZ);
 //         SendClientMessage(playerid, 0x00FF00AA, "Teleported to clicked position");
@@ -56,9 +55,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 //     return 0;
 // }
 
-// OnDialogResponse moved to systems/dialog_systems.pwn
+// OnDialogResponse moved to core_player_dialogs.inc
 
-// ------------------------------ Exit ------------------------------------
+// ------------------------------ Exit ----------------------------------------
 
 public OnPlayerDisconnect(playerid, reason)
 {
