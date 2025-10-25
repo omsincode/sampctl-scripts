@@ -1,8 +1,8 @@
 // --------------------------- Include Guard ----------------------------------
-#if defined _database_included
+#if defined _core_database_included
     #endinput
 #endif
-#define _database_included
+#define _core_database_included
 
 // ------------------------------ Includes ------------------------------------
 #include <a_mysql>
