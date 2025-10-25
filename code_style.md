@@ -1,49 +1,49 @@
 # Code Style Guide - sampctl-scripts Project
 
-## เหตุผลที่ใช้ snake_case
+## Why Use snake_case
 
-**เพื่อแยกชื่อให้ชัดเจน ไม่สับสนระหว่างฟังก์ชันของเรากับ SA-MP natives**
+**To clearly distinguish between our functions and SA-MP natives**
 
-- **SA-MP natives**: ใช้ `PascalCase` (เช่น SetPlayerHealth, GetPlayerPos)
-- **โค้ดของเรา**: ใช้ `snake_case` (เช่น set_player_data, get_player_info)
+- **SA-MP natives**: Use `PascalCase` (e.g., SetPlayerHealth, GetPlayerPos)
+- **Our code**: Use `snake_case` (e.g., set_player_data, get_player_info)
 
 ---
 
-## หลักการตั้งชื่อ
+## Naming Conventions
 
-### 1. ตัวแปร (Variables)
+### 1. Variables
 - **Local**: `snake_case`
-- **Global**: `g_snake_case` (เติม `g_` ข้างหน้า)
+- **Global**: `g_snake_case` (prefix with `g_`)
 
-### 2. ฟังก์ชัน (Functions)
-- **ฟังก์ชันทั่วไป**: `snake_case`
-- **ฟังก์ชันเฉพาะระบบ**: `prefix_snake_case` (เติม prefix ข้างหน้า เช่น `login_`, `register_`, `admin_`)
+### 2. Functions
+- **General functions**: `snake_case`
+- **System-specific functions**: `prefix_snake_case` (prefix with system name, e.g., `login_`, `register_`, `admin_`)
 
-### 3. Enum และ Array
+### 3. Enum and Array
 - **Enum**: `snake_case`
 - **Array**: `snake_case`
 
-### 4. Define และ Constant
-- ใช้ `UPPER_SNAKE_CASE` (ตัวพิมพ์ใหญ่ทั้งหมด)
+### 4. Define and Constant
+- Use `UPPER_SNAKE_CASE` (all uppercase)
 
 ### 5. Callbacks
-- **SA-MP natives**: ใช้ตามเดิม (`OnPlayerConnect`, `OnPlayerDisconnect`)
-- **Custom callbacks**: `on_snake_case` (เติม `on_` ข้างหน้า)
+- **SA-MP natives**: Use as is (`OnPlayerConnect`, `OnPlayerDisconnect`)
+- **Custom callbacks**: `on_snake_case` (prefix with `on_`)
 
 ---
 
-## การจัดรูปแบบโค้ด
+## Code Formatting
 
 ### Braces
-- Opening brace `{` อยู่บรรทัดเดียวกับคำสั่ง
+- Opening brace `{` on the same line as statement
 
 ### Spacing
-- **ไม่เว้นวรรค** ใน: `if()`, `for()`, `while()`, function calls
-- **เว้นวรรค** รอบ operators: `=`, `+`, `-`, `*`, `/`
+- **No space** in: `if()`, `for()`, `while()`, function calls
+- **Space** around operators: `=`, `+`, `-`, `*`, `/`
 
 ---
 
-## โครงสร้างไฟล์โดยประมาณ
+## File Structure
 
 ```pawn
 // --------------------------- Include Guard ----------------------------------
@@ -56,19 +56,19 @@
 
 ---
 
-## สรุป Quick Reference
+## Quick Reference
 
-| ประเภท | รูปแบบ |
-|--------|--------|
-| **ตัวแปร Local** | `snake_case` |
-| **ตัวแปร Global** | `g_snake_case` |
-| **ฟังก์ชัน** | `snake_case` หรือ `prefix_snake_case` |
+| Type | Format |
+|------|--------|
+| **Local Variable** | `snake_case` |
+| **Global Variable** | `g_snake_case` |
+| **Function** | `snake_case` or `prefix_snake_case` |
 | **Enum/Array** | `snake_case` |
 | **Define/Constant** | `UPPER_SNAKE_CASE` |
 | **Custom Callback** | `on_snake_case` |
-| **SA-MP Natives** | `PascalCase` (ใช้ตามเดิม) |
+| **SA-MP Natives** | `PascalCase` (use as is) |
 
 ---
 
-**จัดทำโดย**: omsincode  
-**อัพเดทล่าสุด**: October 26, 2025
+**Created by**: omsincode  
+**Last updated**: October 26, 2025
