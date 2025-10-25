@@ -13,10 +13,8 @@ dependencies/
 # Dependency versions lockfile
 pawn.lock
 
-
-#
 # Server/gamemode related files
-#
+server.cfg
 
 # compiled settings file
 # keep `samp.json` file on version control
