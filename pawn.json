@@ -6,13 +6,55 @@
 	"output": "gamemodes/main.amx",
 	"dependencies": [
 		"pawn-lang/samp-stdlib",
-		"pBlueG/SA-MP-MySQL",
+		"pawn-lang/pawn-stdlib",
+		"pBlueG/SA-MP-MySQL:R41-4",
 		"Southclaws/zcmd"
 	],
+	"dev_dependencies": [],
+	"builds": [
+		{
+			"name": "main",
+			"includes": [
+				"./code",
+				"./dependencies"
+			],
+			"args": [
+				"-d3",
+				"-;+",
+				"-(+",
+				"-\\+",
+				"-Z+"
+			]
+		}
+	],
 	"runtime": {
+		"version": "0.3.7",
+		"mode": "server",
+		"rcon_password": "omsincode",
+		"port": 7777,
+		"hostname": "Star Town Roleplay",
+		"maxplayers": 50,
+		"language": "Thai",
+		"mapname": "Thailand",
+		"weburl": "www.sa-mp.com",
+		"gamemodes": [
+			"main"
+		],
 		"plugins": [
 			"mysql"
-		]
+		],
+		"announce": true,
+		"lanmode": false,
+		"query": true,
+		"chatlogging": false,
+		"logqueries": false,
+		"sleep": 5,
+		"maxnpc": 0,
+		"onfoot_rate": 40,
+		"incar_rate": 40,
+		"weapon_rate": 40,
+		"stream_distance": 300.0,
+		"stream_rate": 1000
 	},
 	"local": true
 }
