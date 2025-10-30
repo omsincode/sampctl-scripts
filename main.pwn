@@ -2,6 +2,7 @@
 #include <a_samp>
 #include <a_mysql>
 #include <zcmd>
+#include <sscanf2>
 
 // ------------------------------ Includes ------------------------------------
 #include "code/core/core_database.inc"

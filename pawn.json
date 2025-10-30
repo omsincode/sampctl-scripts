@@ -8,7 +8,8 @@
         "pawn-lang/samp-stdlib",
         "pawn-lang/pawn-stdlib",
         "pBlueG/SA-MP-MySQL:R41-4",
-        "Southclaws/zcmd"
+        "Southclaws/zcmd",
+        "Y-Less/sscanf"
     ],
     "dev_dependencies": [],
     "builds": [
