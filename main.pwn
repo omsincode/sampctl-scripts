@@ -6,6 +6,11 @@
 
 // ------------------------------ Includes ------------------------------------
 #include "code/core/core_database.inc"
+#include "code/core/core_player_data.inc"
+#include "code/core/core_items.inc"
+#include "code/includes/on_player_key_state_change.inc"
+#include "code/commands/admin_commands.pwn"
+#include "code/scripts/inventory.pwn"
 
 // ------------------------------ Server Configuration ------------------------
 #define HOSTNAME        "Star Town"     // Server name
@@ -14,33 +19,31 @@
 #define VERSION         "V1.0.0"        // Server version
 
 // ------------------------------ Main ----------------------------------------
-main()
-{
+main() {
     return 1;
 }
 
 
 // ------------------------------ Login ---------------------------------------
-public OnGameModeInit()
-{
+public OnGameModeInit() {
     connect_to_database();
+    printf("[ITEMS] Item system initialized with %d static items", get_static_item_count());
+    
     return 1;
 }
 
-public OnPlayerConnect(playerid)
-{
+public OnPlayerConnect(playerid) {
     return 1;
 }
 
-public OnPlayerSpawn(playerid)
-{
+public OnPlayerSpawn(playerid) {
     return 1;
 }
 
 // ------------------------------ Maps ----------------------------------------
 
-public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
-{
+public OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
+    on_player_key_state_change(playerid, newkeys, oldkeys);
     return 1;
 }
 
@@ -60,13 +63,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
 // ------------------------------ Exit ----------------------------------------
 
-public OnPlayerDisconnect(playerid, reason)
-{
+public OnPlayerDisconnect(playerid, reason) {
     return 1;
 }
 
-public OnGameModeExit()
-{
+public OnGameModeExit() {
     stop_connect_to_database();
     return 1;
 }

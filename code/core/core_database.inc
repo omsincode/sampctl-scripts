@@ -15,7 +15,7 @@ static bool:mysql_ready = false; // Prevent duplicate connections
 #define MYSQL_HOST      "localhost"
 #define MYSQL_USER      "root"
 #define MYSQL_PASSWORD  ""
-#define MYSQL_DATABASE  "startown_database"
+#define MYSQL_DATABASE  "sampctl_database"
 
 // ------------------------------ Stocks --------------------------------------
 stock connect_to_database()
@@ -31,7 +31,13 @@ stock connect_to_database()
         printf("[MySQL] cannot connect (err %d)", mysql_errno(mysql_handle));
         return SendRconCommand("exit"); // Close server if DB connection fails
     }
+    
+    // ตั้งค่า charset เป็น UTF-8 เพื่อรองรับภาษาไทย
+    mysql_tquery(mysql_handle, "SET NAMES utf8mb4");
+    mysql_tquery(mysql_handle, "SET CHARACTER SET utf8mb4");
+    
     mysql_ready = true;
+    printf("[MySQL] Connected successfully with UTF-8 charset");
     return 1;
 }
 

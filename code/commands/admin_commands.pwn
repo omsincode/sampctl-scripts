@@ -6,6 +6,18 @@
 
 // ------------------------------ Includes ------------------------------------
 #include <a_samp>
+#include <code/core/core_player_data>
+
+// ------------------------------ Helper Functions ----------------------------
+stock IsPlayerLoggedIn(playerid) {
+    return player_info[playerid][player_logged_in];
+}
+
+stock getplayername(playerid) {
+    new name[MAX_PLAYER_NAME];
+    GetPlayerName(playerid, name, sizeof(name));
+    return name;
+}
 
 // ------------------------------ Defines -------------------------------------
 #define COLOR_RED     0xFF0000FF
@@ -17,7 +29,7 @@
 #define DIALOG_ADMIN_HELP         101
 
 // ------------------------ External Variables --------------------------------
-// ต้องประกาศเพื่อให้ใช้งานได้ (ประกาศจริงใน main.pwn)
+// ตัวแปรสำหรับติดตามรถที่สร้าง (ประกาศจริงใน main.pwn)
 #if !defined MAX_SPAWNED_VEHICLES
     #define MAX_SPAWNED_VEHICLES 100
 #endif
@@ -28,7 +40,7 @@
 #endif
 
 // ------------------------ Spawned Vehicle Tracking --------------------------
-// ฟังก์ชันเพิ่มรถเข้าระบบติดตาม
+// ฟังก์ชันติดตามรถที่ถูกสร้างขึ้น
 stock AddSpawnedVehicle(vehicleid) {
     if(g_SpawnedVehicleCount >= MAX_SPAWNED_VEHICLES) {
         return 0; // เต็มแล้ว
@@ -38,11 +50,11 @@ stock AddSpawnedVehicle(vehicleid) {
     return 1;
 }
 
-// ฟังก์ชันลบรถออกจากระบบติดตาม
+// ฟังก์ชันลบรถออกจากลิสต์ที่ติดตาม
 stock RemoveSpawnedVehicle(vehicleid) {
     for(new i = 0; i < g_SpawnedVehicleCount; i++) {
         if(g_SpawnedVehicles[i] == vehicleid) {
-            // เลื่อนรายการทั้งหมดมาข้างหน้า
+            // เลื่อนทุกค่าที่อยู่ข้างหนังมา
             for(new j = i; j < g_SpawnedVehicleCount - 1; j++) {
                 g_SpawnedVehicles[j] = g_SpawnedVehicles[j + 1];
             }
@@ -53,7 +65,7 @@ stock RemoveSpawnedVehicle(vehicleid) {
     return 0;
 }
 
-// ฟังก์ชันเช็คว่ารถเป็นรถที่เสกหรือไม่
+// ฟังก์ชันเช็ครถว่าถูกสร้างโดยคำสั่งหรือไม่
 stock IsSpawnedVehicle(vehicleid) {
     for(new i = 0; i < g_SpawnedVehicleCount; i++) {
         if(g_SpawnedVehicles[i] == vehicleid) {
@@ -64,7 +76,7 @@ stock IsSpawnedVehicle(vehicleid) {
 }
 
 // ------------------------------ Stocks -----------------------------------
-// ฟังก์ชันช่วยแยกพารามิเตอร์
+// ฟังก์ชันแยกพารามิเตอร์
 stock SplitParams(const string[], args[][32], maxArgs = sizeof(args)) {
     new argCount = 0;
     new length = strlen(string);
@@ -76,15 +88,15 @@ stock SplitParams(const string[], args[][32], maxArgs = sizeof(args)) {
         while(end < length && string[end] == ' ') end++;
         start = end;
         
-        // หาจุดสิ้นสุดของพารามิเตอร์
+        // หาจุดสิ้นสุดของคำถัดไป
         while(end < length && string[end] != ' ') end++;
         
         if(start < end) {
-            // จำกัดความยาวสูงสุด 31 ตัวอักษร (เผื่อ 1 ตัวสำหรับ '\0')
+            // จำกัดความยาวสูงสุด 31 ตัวอักษร (เหลือ 1 ตัวสำหรับ '\0')
             if(end - start > 31) {
                 end = start + 31;
             }
-            strmid(args[argCount], string, start, end, 32); // คัดลอกเฉพาะช่วงที่กำหนด
+            strmid(args[argCount], string, start, end, 32); // ตัดเอกเฉพาะส่วนหนึ่ง
             argCount++;
         }
     }
@@ -127,7 +139,7 @@ stock GetVehicleName(vehicleid, vehiclename[], len) {
     };
     
     vehicleid -= 400; // แปลง ID รถเป็น index ของ array
-    if(vehicleid < 0 || vehicleid >= sizeof(vNames)) { // ตรวจสอบ index ให้อยู่ในช่วงที่ถูกต้อง
+    if(vehicleid < 0 || vehicleid >= sizeof(vNames)) { // ตรวจสอบ index ว่าอยู่ในช่วงที่ถูกต้อง
         format(vehiclename, len, "Unknown");
         return 0;
     }
@@ -137,7 +149,7 @@ stock GetVehicleName(vehicleid, vehiclename[], len) {
 }
 
 // ------------------------------ Short Commands -----------------------------------
-// คำสั่งแบบสั้นที่เรียกใช้คำสั่งเต็ม
+// คำสั่งย่อที่เรียกใช้ฟังก์ชันเต็ม
 
 CMD:v(playerid, params[]) {
     return cmd_vehicle(playerid, params);
@@ -172,23 +184,23 @@ CMD:cveh(playerid, params[]) {
 }
 
 // ------------------------------ Fully Commands ----------------------------------
-// คำสั่งแบบเต็มพร้อมฟังก์ชันการทำงานทั้งหมด
+// คำสั่งแบบเต็มที่ทำงานจริง
 
-// คำสั่งลบรถที่เสกทั้งหมด (เฉพาะรถที่ไม่มีคนนั่ง) /clearspawnedvehicles
+// คำสั่งลบรถที่สร้างทั้งหมด (เฉพาะรถที่แอดมินสร้าง) /clearspawnedvehicles
 CMD:clearspawnedvehicles(playerid, params[]) {
-    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 2) {
-        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณต้องเป็นแอดมินเลเวล 2 ขึ้นไป!");
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 2) {
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณต้องเป็นแอดมินระดับ 2 ขึ้นไป!");
         return 1;
     }
     
     new deletedCount = 0;
     new skipCount = 0;
     
-    // วนลูปลบรถที่เสกทั้งหมด (จากท้ายไปหน้าเพื่อไม่ให้ index เปลี่ยน)
+    // วนลูปลบรถที่สร้างทั้งหมด (จากด้านหลังเพื่อหลีกเลี่ยง index ผิด)
     for(new i = g_SpawnedVehicleCount - 1; i >= 0; i--) {
         new vehicleid = g_SpawnedVehicles[i];
         
-        // เช็คว่ามีคนนั่งในรถหรือไม่
+        // เช็คว่ามีคนในรถไหม
         new hasPassenger = 0;
         for(new p = 0; p < MAX_PLAYERS; p++) {
             if(IsPlayerConnected(p) && IsPlayerInVehicle(p, vehicleid)) {
@@ -197,7 +209,7 @@ CMD:clearspawnedvehicles(playerid, params[]) {
             }
         }
         
-        // ถ้าไม่มีคนนั่ง ให้ลบรถ
+        // ถ้าไม่มีคนใน ก็ลบรถ
         if(!hasPassenger) {
             DestroyVehicle(vehicleid);
             RemoveSpawnedVehicle(vehicleid);
@@ -207,23 +219,23 @@ CMD:clearspawnedvehicles(playerid, params[]) {
         }
     }
     
-    // ส่งข้อความแจ้งผลลัพธ์
+    // ส่งข้อความแจ้งผู้เล่น
     new message[128];
-    format(message, sizeof(message), "ลบรถที่เสกสำเร็จ: %d คัน | ข้าม (มีผู้โดยสาร): %d คัน", deletedCount, skipCount);
+    format(message, sizeof(message), "ลบรถที่สร้างเสร็จ: %d คัน | ข้าม (มีผู้โดยสาร): %d คัน", deletedCount, skipCount);
     SendClientMessage(playerid, COLOR_GREEN, message);
     
-    // Log การใช้คำสั่ง
+    // Log ไว้ในคอนโซล
     new logmsg[256];
-    format(logmsg, sizeof(logmsg), "[ADMIN] %s ได้ใช้คำสั่งลบรถที่เสก ลบได้ %d คัน", getplayername(playerid), deletedCount);
+    format(logmsg, sizeof(logmsg), "[ADMIN] %s ใช้คำสั่งลบรถที่สร้าง ลบไป %d คัน", getplayername(playerid), deletedCount);
     print(logmsg);
     
     return 1;
 }
 
-// คำสั่งเสกรถแบบเต็ม /vehicle
+// คำสั่งสร้างรถแบบเต็ม /vehicle
 CMD:vehicle(playerid, params[]) {
-    // เช็คว่าเป็นแอดมินระดับ 1 ขึ้นไปหรือไม่
-    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 1) {
+    // ต้องเป็นแอดมินระดับ 1 ขึ้นไปถึงใช้ได้
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 1) {
         SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณไม่มีสิทธิ์ใช้คำสั่งนี้!");
         return 1;
     }
@@ -232,9 +244,9 @@ CMD:vehicle(playerid, params[]) {
     
     // ตรวจสอบพารามิเตอร์
     if(strlen(params) == 0) {
-        SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /vehicle [รหัสรถ] [สี1] [สี2]");
-        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /vehicle 411 (/v 411) - เสกรถ Infernus");
-        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /vehicle 411 0 1 - เสกรถ Infernus สีดำ-ขาว");
+        SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /vehicle [ไอดีรถ] [สี1] [สี2]");
+        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /vehicle 411 (/v 411) - สร้างรถ Infernus");
+        SendClientMessage(playerid, COLOR_WHITE, "ตัวอย่าง: /vehicle 411 0 1 - สร้างรถ Infernus สีดำ-ขาว");
         return 1;
     }
     
@@ -242,18 +254,18 @@ CMD:vehicle(playerid, params[]) {
     new argCount = SplitParams(params, args);
     
     vehicleid = strval(args[0]);
-    if(argCount > 1) color1 = strval(args[1]); // สีหลัก
-    if(argCount > 2) color2 = strval(args[2]); // สีรอง
+    if(argCount > 1) color1 = strval(args[1]); // สีแรก
+    if(argCount > 2) color2 = strval(args[2]); // สีสอง
     
-    // ตรวจสอบรหัสรถว่าถูกต้องหรือไม่ (400-611)
+    // ตรวจสอบไอดีรถว่าถูกต้องหรือไม่ (400-611)
     if(vehicleid < 400 || vehicleid > 611) {
-        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: รหัสรถไม่ถูกต้อง! (400-611)");
+        SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: ไอดีรถไม่ถูกต้อง! (400-611)");
         return 1;
     }
     
-    // ตั้งค่าสีเริ่มต้นถ้าไม่ได้ระบุ
-    if(color1 == -1) color1 = random(256); // สุ่มสีหลัก
-    if(color2 == -1) color2 = random(256); // สุ่มสีรอง
+    // ใช้ค่าสุ่มถ้าไม่ระบุสี
+    if(color1 == -1) color1 = random(256); // สีแรก
+    if(color2 == -1) color2 = random(256); // สีสอง
     
     // ดึงตำแหน่งผู้เล่น
     new Float:x, Float:y, Float:z, Float:angle;
@@ -268,21 +280,21 @@ CMD:vehicle(playerid, params[]) {
         return 1;
     }
     
-    // เพิ่มรถเข้าระบบติดตาม
+    // เพิ่มรถลงลิสต์ที่ติดตาม
     AddSpawnedVehicle(vehicleobj);
     
-    // ใส่ผู้เล่นเข้ารถ
+    // นั่งผู้เล่นลงรถ
     PutPlayerInVehicle(playerid, vehicleobj, 0);
     
-    // ส่งข้อความแจ้งเตือน
+    // ส่งข้อความตอบกลับ
     new message[128], vehiclename[32];
     GetVehicleName(vehicleid, vehiclename, sizeof(vehiclename));
-    format(message, sizeof(message), "เสกรถ %s (ID: %d) สำเร็จ! สี: %d-%d", vehiclename, vehicleid, color1, color2);
+    format(message, sizeof(message), "สร้างรถ %s (ID: %d) เรียบร้อย! สี: %d-%d", vehiclename, vehicleid, color1, color2);
     SendClientMessage(playerid, COLOR_GREEN, message);
     
-    // Log การใช้คำสั่ง
+    // Log ไว้ในคอนโซล
     new logmsg[256];
-    format(logmsg, sizeof(logmsg), "[ADMIN] %s ได้เสกรถ %s (ID: %d)", getplayername(playerid), vehiclename, vehicleid);
+    format(logmsg, sizeof(logmsg), "[ADMIN] %s สร้างรถ %s (ID: %d)", getplayername(playerid), vehiclename, vehicleid);
     print(logmsg);
     
     return 1;
@@ -290,7 +302,7 @@ CMD:vehicle(playerid, params[]) {
 
 // คำสั่งลบรถแบบเต็ม /deletevehicle
 CMD:deletevehicle(playerid, params[]) {
-    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 1) {
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 1) {
         SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณไม่มีสิทธิ์ใช้คำสั่งนี้!");
         return 1;
     }
@@ -308,7 +320,7 @@ CMD:deletevehicle(playerid, params[]) {
     DestroyVehicle(vehicleobj); // ลบรถ
     
     new message[128];
-    format(message, sizeof(message), "ลบรถ %s สำเร็จ!", vehiclename);
+    format(message, sizeof(message), "ลบรถ %s เรียบร้อย!", vehiclename);
     SendClientMessage(playerid, COLOR_GREEN, message);
     
     return 1;
@@ -316,7 +328,7 @@ CMD:deletevehicle(playerid, params[]) {
 
 // คำสั่งซ่อมรถแบบเต็ม /repair
 CMD:repair(playerid, params[]) {
-    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 1) {
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 1) {
         SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณไม่มีสิทธิ์ใช้คำสั่งนี้!");
         return 1;
     }
@@ -334,9 +346,9 @@ CMD:repair(playerid, params[]) {
     return 1;
 }
 
-// คำสั่งความช่วยเหลือแอดมิน /adminhelp
+// คำสั่งแสดงความช่วยเหลือแอดมิน /adminhelp
 CMD:adminhelp(playerid, params[]) {
-    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 1) {
+    if(!IsPlayerConnected(playerid) || !IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 1) {
         SendClientMessage(playerid, COLOR_RED, "ข้อผิดพลาด: คุณไม่มีสิทธิ์ใช้คำสั่งนี้!");
         return 1;
     }
@@ -345,81 +357,79 @@ CMD:adminhelp(playerid, params[]) {
     return 1;
 }
 
-// หมายเหตุ: CMD:giveitem ถูกย้ายไปที่ inventory_systems.pwn แล้ว
-
 // ------------------------------ Dialog Admin Help ---------------------------------
-// แสดง Dialog ช่วยเหลือหลักสำหรับแอดมิน
+// แสดง Dialog พร้อมรายการคำสั่งสำหรับแอดมิน
 stock ShowAdminHelpDialog(playerid) {
-    if(!IsPlayerLoggedIn(playerid) || PlayerIntData[playerid][AdminLevel] < 1) {
+    if(!IsPlayerLoggedIn(playerid) || player_info[playerid][player_admin_level] < 1) {
         SendClientMessage(playerid, 0xFF0000AA, "ข้อผิดพลาด: คุณไม่มีสิทธิ์ใช้คำสั่งนี้!");
         return 0;
     }
     
     new list_content[1024];
 
-    // แสดงเฉพาะคำสั่งที่มีอยู่จริง เป็นลิสต์ให้เลือก
-    strcat(list_content, "{00FF00}/vehicle [ID] [สี1] [สี2]{FFFFFF} - เสกรถ\n");
+    // แสดงเฉพาะคำสั่งที่เกี่ยวข้อง แต่สามารถขยายเพิ่ม
+    strcat(list_content, "{00FF00}/vehicle [ID] [สี1] [สี2]{FFFFFF} - สร้างรถ\n");
     strcat(list_content, "{00FF00}/deletevehicle{FFFFFF} - ลบรถ\n");
-    strcat(list_content, "{00FF00}/clearspawnedvehicles{FFFFFF} - ลบรถที่เสกทั้งหมด (ไม่มีคนนั่ง)\n");
+    strcat(list_content, "{00FF00}/clearspawnedvehicles{FFFFFF} - ลบรถที่สร้างทั้งหมด (ไม่มีคนใน)\n");
     strcat(list_content, "{00FF00}/repair{FFFFFF} - ซ่อมรถ\n");
-    strcat(list_content, "{00FF00}/giveitem [ID] [ItemIndex] [จำนวน]{FFFFFF} - ให้ไอเท็ม\n");
-    strcat(list_content, "{00FF00}/createitem [ชื่อ] [น้ำหนัก] [คำอธิบาย]{FFFFFF} - สร้างไอเท็มใหม่\n");
-    strcat(list_content, "{00FF00}/reloaditems{FFFFFF} - โหลดไอเท็มใหม่\n");
-    strcat(list_content, "{00FF00}/itemlist{FFFFFF} - แสดงรายการไอเท็ม\n");
-    strcat(list_content, "{00FF00}/adminhelp{FFFFFF} - แสดงความช่วยเหลือ");
+    strcat(list_content, "{00FF00}/giveitem [ID] [ItemIndex] [จำนวน]{FFFFFF} - ให้ไอเทม\n");
+    strcat(list_content, "{00FF00}/createitem [ชื่อ] [น้ำหนัก] [คำอธิบาย]{FFFFFF} - สร้างไอเทมใหม่\n");
+    strcat(list_content, "{00FF00}/reloaditems{FFFFFF} - โหลดไอเทมใหม่\n");
+    strcat(list_content, "{00FF00}/itemlist{FFFFFF} - แสดงรายการไอเทม\n");
+    strcat(list_content, "{00FF00}/adminhelp{FFFFFF} - แสดงความช่วยเหลือนี้");
 
     ShowPlayerDialog(playerid, DIALOG_ADMIN_HELP, DIALOG_STYLE_LIST,
-        "?? ระบบช่วยเหลือแอดมิน (เลือกเพื่อดูรายละเอียด)", list_content, "เลือก", "ปิด");
+        "คู่มือคำสั่งแอดมิน (เลือกเพื่ือดูรายละเอียด)", list_content, "เลือก", "ปิด");
     return 1;
 }
 
-// ส่งข้อความวิธีใช้คำสั่งไปยังแชทของผู้เล่น (เฉพาะคนที่เลือก)
+// ส่งข้อความแนะนำวิธีใช้งานคำสั่ง (เฉพาะคำสั่งเลือก)
 stock ShowAdminCommandUsage(playerid, index) {
     switch(index) {
         case 0: { // /vehicle
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /vehicle [รหัสรถ] [สี1] [สี2]");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /vehicle [ไอดีรถ] [สี1] [สี2]");
             SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /vehicle 411 0 1  |  ทางลัด: /v 411 0 1");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 1+, รหัสรถ 400-611");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 1+, ไอดีรถ 400-611");
         }
         case 1: { // /deletevehicle
             SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /deletevehicle  |  ทางลัด: /dv");
-            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ต้องนั่งอยู่ในรถที่ต้องการลบ");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ต้องอยู่ในรถที่ต้องการลบ");
         }
         case 2: { // /clearspawnedvehicles
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /clearspawnedvehicles  |  ทางลัด: /clearveh, /cveh");
-            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ลบรถที่เสกจากคำสั่งทั้งหมด (เฉพาะรถที่ไม่มีคนนั่ง)");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 2+");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /clearspawnedvehicles  |  ๏ฟฝาง๏ฟฝัด: /clearveh, /cveh");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ลบรถ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝสก๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ่งท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (เฉพ๏ฟฝ๏ฟฝรถ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝีค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)");
+            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 2+");
         }
         case 3: { // /repair
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /repair  |  ทางลัด: /fix");
-            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ต้องนั่งอยู่ในรถที่จะซ่อม");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /repair  |  ๏ฟฝาง๏ฟฝัด: /fix");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝรถ๏ฟฝ๏ฟฝ๏ฟฝะซ๏ฟฝ๏ฟฝ๏ฟฝ");
         }
         case 4: { // /giveitem
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /giveitem [PlayerID] [ItemIndex] [จำนวน]");
-            SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /giveitem 0 1 5  (ให้ไอเท็ม index 1 จำนวน 5 ชิ้นแก่ผู้เล่น ID 0)");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 3+");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /giveitem [PlayerID] [ItemIndex] [๏ฟฝำนวน]");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง: /giveitem 0 1 5  (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ index 1 ๏ฟฝำนวน 5 ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ID 0)");
+            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 3+");
         }
         case 5: { // /createitem
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /createitem [ชื่อไอเท็ม] [น้ำหนัก] [คำอธิบาย]");
-            SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /createitem Sword 2.5 ดาบเหล็กคมกริบ");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 5+");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /createitem [๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ] [๏ฟฝ๏ฟฝ๏ฟฝหนัก] [๏ฟฝ๏ฟฝอธิบ๏ฟฝ๏ฟฝ]");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง: /createitem Sword 2.5 ๏ฟฝาบ๏ฟฝ๏ฟฝ๏ฟฝ็กค๏ฟฝ๏ฟฝ๏ฟฝิบ");
+            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 5+");
         }
         case 6: { // /reloaditems
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /reloaditems");
-            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: โหลดข้อมูลไอเท็มใหม่จากฐานข้อมูล");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 5+");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /reloaditems");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝ๏ฟฝลด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาก๏ฟฝาน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ");
+            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 5+");
         }
         case 7: { // /itemlist
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /itemlist");
-            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: แสดงรายการไอเท็มทั้งหมดในระบบ (สูงสุด 50 รายการ)");
-            SendClientMessage(playerid, COLOR_GREEN,  "ข้อกำหนด: แอดมินเลเวล 1+");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /itemlist");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝสด๏ฟฝ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะบ๏ฟฝ (๏ฟฝูง๏ฟฝุด 50 ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ)");
+            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 1+");
         }
         case 8: { // /adminhelp
-            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /adminhelp  |  ทางลัด: /ahelp, /admin, /a");
-            SendClientMessage(playerid, COLOR_WHITE,  "การทำงาน: เปิดหน้าความช่วยเหลือแอดมิน");
+            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /adminhelp  |  ๏ฟฝาง๏ฟฝัด: /ahelp, /admin, /a");
+            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝรทำงาน: ๏ฟฝิดหน๏ฟฝาค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอด๏ฟฝิน");
         }
         default: {
-            SendClientMessage(playerid, COLOR_RED, "ไม่พบข้อมูลวิธีใช้ของคำสั่งที่เลือก");
+            SendClientMessage(playerid, COLOR_RED, "๏ฟฝ๏ฟฝ่พบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ่งท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอก");
         }
     }
     return 1;
