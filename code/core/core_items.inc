@@ -10,6 +10,7 @@
 #include <code/core/core_items_type>
 #include <code/core/core_item_ability>
 
+
 // ------------------------------ Configuration -------------------------------
 #define MAX_INVENTORY_SLOTS     20
 

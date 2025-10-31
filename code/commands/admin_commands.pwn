@@ -396,40 +396,40 @@ stock ShowAdminCommandUsage(playerid, index) {
             SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ต้องอยู่ในรถที่ต้องการลบ");
         }
         case 2: { // /clearspawnedvehicles
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /clearspawnedvehicles  |  ๏ฟฝาง๏ฟฝัด: /clearveh, /cveh");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ลบรถ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝสก๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ่งท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (เฉพ๏ฟฝ๏ฟฝรถ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝีค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)");
-            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 2+");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /clearspawnedvehicles  |  ทางลัด: /clearveh, /cveh");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ลบรถที่สร้างจากคำสั่งทั้งหมด (เฉพาะรถที่ไม่มีคนใน)");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 2+");
         }
         case 3: { // /repair
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /repair  |  ๏ฟฝาง๏ฟฝัด: /fix");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝรถ๏ฟฝ๏ฟฝ๏ฟฝะซ๏ฟฝ๏ฟฝ๏ฟฝ");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /repair  |  ทางลัด: /fix");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: ต้องอยู่ในรถเพื่อซ่อม");
         }
         case 4: { // /giveitem
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /giveitem [PlayerID] [ItemIndex] [๏ฟฝำนวน]");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง: /giveitem 0 1 5  (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ index 1 ๏ฟฝำนวน 5 ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ID 0)");
-            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 3+");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /giveitem [PlayerID] [ItemIndex] [จำนวน]");
+            SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /giveitem 0 1 5  (ให้ไอเทม index 1 จำนวน 5 แก่ผู้เล่น ID 0)");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 3+");
         }
         case 5: { // /createitem
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /createitem [๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ] [๏ฟฝ๏ฟฝ๏ฟฝหนัก] [๏ฟฝ๏ฟฝอธิบ๏ฟฝ๏ฟฝ]");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง: /createitem Sword 2.5 ๏ฟฝาบ๏ฟฝ๏ฟฝ๏ฟฝ็กค๏ฟฝ๏ฟฝ๏ฟฝิบ");
-            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 5+");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /createitem [ชื่อไอเทม] [น้ำหนัก] [คำอธิบาย]");
+            SendClientMessage(playerid, COLOR_WHITE,  "ตัวอย่าง: /createitem Sword 2.5 ดาบเหล็กคมกริบ");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 5+");
         }
         case 6: { // /reloaditems
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /reloaditems");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝ๏ฟฝลด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาก๏ฟฝาน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ");
-            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 5+");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /reloaditems");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: โหลดข้อมูลไอเทมใหม่จากฐานข้อมูล");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 5+");
         }
         case 7: { // /itemlist
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /itemlist");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝหต๏ฟฝ: ๏ฟฝสด๏ฟฝ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะบ๏ฟฝ (๏ฟฝูง๏ฟฝุด 50 ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ)");
-            SendClientMessage(playerid, COLOR_GREEN,  "๏ฟฝ๏ฟฝอก๏ฟฝหน๏ฟฝ: ๏ฟฝอด๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 1+");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /itemlist");
+            SendClientMessage(playerid, COLOR_WHITE,  "หมายเหตุ: แสดงรายการไอเทมทั้งหมดในระบบ (สูงสุด 50 รายการ)");
+            SendClientMessage(playerid, COLOR_GREEN,  "เงื่อนไข: แอดมินระดับ 1+");
         }
         case 8: { // /adminhelp
-            SendClientMessage(playerid, COLOR_YELLOW, "๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝ: /adminhelp  |  ๏ฟฝาง๏ฟฝัด: /ahelp, /admin, /a");
-            SendClientMessage(playerid, COLOR_WHITE,  "๏ฟฝ๏ฟฝรทำงาน: ๏ฟฝิดหน๏ฟฝาค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอด๏ฟฝิน");
+            SendClientMessage(playerid, COLOR_YELLOW, "วิธีใช้: /adminhelp  |  ทางลัด: /ahelp, /admin, /a");
+            SendClientMessage(playerid, COLOR_WHITE,  "การทำงาน: เปิดหน้าต่างคำสั่งแอดมิน");
         }
         default: {
-            SendClientMessage(playerid, COLOR_RED, "๏ฟฝ๏ฟฝ่พบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิธ๏ฟฝ๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ่งท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอก");
+            SendClientMessage(playerid, COLOR_RED, "ไม่พบคำแนะนำวิธีใช้ของคำสั่งที่เลือก");
         }
     }
     return 1;
