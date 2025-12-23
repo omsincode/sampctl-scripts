@@ -5,12 +5,7 @@
 #include <sscanf2>
 
 // ------------------------------ Includes ------------------------------------
-#include "code/core/core_database.inc"
-#include "code/core/core_player_data.inc"
-#include "code/core/core_items.inc"
-#include "code/includes/on_player_key_state_change.inc"
-#include "code/commands/admin_commands.pwn"
-#include "code/scripts/inventory.pwn"
+
 
 // ------------------------------ Server Configuration ------------------------
 #define HOSTNAME        "Star Town"     // Server name
@@ -26,7 +21,6 @@ main() {
 
 // ------------------------------ Login ---------------------------------------
 public OnGameModeInit() {
-    connect_to_database();
     printf("[ITEMS] Item system initialized with %d static items", get_static_item_count());
     
     return 1;
@@ -58,8 +52,6 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
 //     }
 //     return 0;
 // }
-
-// OnDialogResponse moved to core_player_dialogs.inc
 
 // ------------------------------ Exit ----------------------------------------
 
